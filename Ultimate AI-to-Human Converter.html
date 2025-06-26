@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate AI-to-Human Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #3a0ca3;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        textarea:focus {
+            border-color: #4361ee;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        button {
+            padding: 12px 20px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        #convertBtn {
+            background: #4361ee;
+        }
+        #convertBtn:hover {
+            background: #3a0ca3;
+        }
+        #copyBtn {
+            background: #10b981;
+        }
+        #copyBtn:hover {
+            background: #0d9c6e;
+        }
+        #clearBtn {
+            background: #ef4444;
+        }
+        #clearBtn:hover {
+            background: #dc2626;
+        }
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .feature-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .counter {
+            text-align: right;
+            font-size: 14px;
+            color: #64748b;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        .plan-info {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+        .plan-info.free {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        .plan-info .highlight {
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-robot"></i> Ultimate AI-to-Human Converter</h1>
+        <p style="text-align: center; color: #64748b;">
+            Maximum humanization applied • All features enabled <span class="feature-badge">100% Human</span>
+        </p>
+        
+        <div class="plan-info free">
+            <i class="fas fa-user"></i> <strong>Free Plan:</strong> <span class="highlight">300 words/day</span> remaining • <a href="#" style="color: #3b82f6;">Upgrade for unlimited</a>
+        </div>
+        
+        <div>
+            <label for="inputText"><strong>Your AI Text:</strong></label>
+            <textarea id="inputText" placeholder="Paste your AI-generated text here..."></textarea>
+            <div class="counter">
+                <span id="charCount">0</span> characters • <span id="wordCount">0</span> words
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="convertBtn"><i class="fas fa-magic"></i> Humanize Text</button>
+            <button id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+            <button id="clearBtn"><i class="fas fa-trash"></i> Clear</button>
+        </div>
+        
+        <div id="status" class="status-message"></div>
+        
+        <div>
+            <label for="outputText"><strong>Human-like Result:</strong></label>
+            <textarea id="outputText" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        // ========== WORD LIMIT CONFIG ========== //
+        const FREE_PLAN_LIMIT = 300;
+        let wordsUsedToday = 0;
+        
+        // ========== FORCED HUMANIZATION PATTERNS ========== //
+        const humanizationPatterns = {
+            // AI detection removal
+            removeAiMarkers: [
+                { pattern: /\bAs an AI(?: language)? model\b/gi, replace: "" },
+                { pattern: /\bI(?:'m| am) (?:an )?AI(?: assistant)?\b/gi, replace: "In my experience" },
+                { pattern: /\b(?:This|The) (?:content|text) (?:was|is) (?:generated|created) by AI\b/gi, replace: "" },
+                { pattern: /\b(?:based on my training data|according to my knowledge cutoff)\b/gi, replace: "from what I've seen" },
+                { pattern: /\b(?:however, it is important to note|it should be noted that)\b/gi, replace: "but here's the thing" },
+                { pattern: /\b(?:in conclusion|to summarize)\b/gi, replace: "so what's the takeaway?" },
+                { pattern: /\b(?:additionally|furthermore|moreover)\b/gi, replace: "also" }
+            ],
+            
+            // Conversational enhancements (FORCED ON)
+            conversational: [
+                { pattern: /\bit is\b/gi, replace: "it's" },
+                { pattern: /\bdo not\b/gi, replace: "don't" },
+                { pattern: /\bcannot\b/gi, replace: "can't" },
+                { pattern: /\bwill not\b/gi, replace: "won't" },
+                { pattern: /\bI am\b/gi, replace: "I'm" },
+                { pattern: /\b(?:one|you) can\b/gi, replace: "you can" },
+                { pattern: /\b(?:individuals|persons)\b/gi, replace: "people" },
+                { pattern: /\bcommence\b/gi, replace: "start" },
+                { pattern: /\butilize\b/gi, replace: "use" },
+                { pattern: /\bprior to\b/gi, replace: "before" },
+                { pattern: /\bsubsequent to\b/gi, replace: "after" }
+            ],
+            
+            // Personal voice injections (FORCED ON)
+            personalityElements: [
+                "From my perspective...",
+                "What I've noticed is...",
+                "I've found that...",
+                "Here's what works for me...",
+                "This reminds me of when...",
+                "In my own work, I've discovered...",
+                "A little trick I use is...",
+                "Funny enough...",
+                "Honestly, I think...",
+                "Between you and me..."
+            ],
+            
+            // Natural speech patterns (FORCED ON)
+            naturalSpeech: [
+                { pattern: /\. /g, replace: "... " },
+                { pattern: /\bperfect\b/gi, replace: "pretty solid" },
+                { pattern: /\ball\b/gi, replace: "most" },
+                { pattern: /\bdefinitely\b/gi, replace: "probably" },
+                { pattern: /\bunderstand\b/gi, replace: "wrap my head around" },
+                { pattern: /\bimportant\b/gi, replace: "really important" },
+                { pattern: /\bbut\b/gi, replace: "but honestly" },
+                { pattern: /\bvery\b/gi, replace: "super" },
+                { pattern: /\bhowever\b/gi, replace: "that said" },
+                { pattern: /\btherefore\b/gi, replace: "so" }
+            ],
+            
+            // Engaging questions (FORCED ON)
+            engagingQuestions: [
+                "Have you ever thought about this?",
+                "Can you believe how this works?",
+                "What would you do in this situation?",
+                "Why does this matter, you ask?",
+                "Ever found yourself in this position?",
+                "What's your take on this?",
+                "Pretty wild, right?",
+                "Who would've thought?"
+            ],
+            
+            // Sentence starters (FORCED ON)
+            sentenceStarters: [
+                "Here's the deal...",
+                "Look, here's what I know...",
+                "The way I see it...",
+                "Let's be real...",
+                "At the end of the day...",
+                "If you ask me...",
+                "Truth be told...",
+                "No joke..."
+            ]
+        };
+
+        // ========== ALWAYS-ON HUMANIZATION ========== //
+        function processHumanConversion(text) {
+            let result = text;
+            
+            // 1. Remove all AI markers (FORCED)
+            result = applyPatterns(result, humanizationPatterns.removeAiMarkers);
+            
+            // 2. Apply conversational tone (FORCED)
+            result = applyPatterns(result, humanizationPatterns.conversational);
+            
+            // 3. Add personality elements (FORCED)
+            result = addRandomElements(result, humanizationPatterns.personalityElements, 0.4); // 40% chance per paragraph
+            result = addRandomElements(result, humanizationPatterns.engagingQuestions, 0.3); // 30% chance
+            
+            // 4. Add natural speech patterns (FORCED)
+            result = applyPatterns(result, humanizationPatterns.naturalSpeech);
+            result = varySentenceStructure(result);
+            result = addSentenceVariety(result);
+            
+            // 5. Final polish (FORCED)
+            return finalHumanPolish(result);
+        }
+        
+        function addRandomElements(text, elements, probability = 0.3) {
+            const paragraphs = text.split('\n\n');
+            
+            const enhanced = paragraphs.map(para => {
+                const sentences = para.split(/(?<=[.!?])\s+/);
+                
+                const modified = sentences.map((sentence, index) => {
+                    // Don't add to first sentence of paragraph
+                    if (index > 0 && Math.random() < probability) {
+                        const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                        return `${sentence} ${randomElement}`;
+                    }
+                    return sentence;
+                });
+                
+                return modified.join(' ');
+            });
+            
+            return enhanced.join('\n\n');
+        }
+        
+        function addSentenceVariety(text) {
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            const starters = humanizationPatterns.sentenceStarters;
+            
+            const varied = sentences.map((sentence, index) => {
+                // 25% chance to add a starter to non-first sentences
+                if (index > 0 && Math.random() < 0.25) {
+                    const starter = starters[Math.floor(Math.random() * starters.length)];
+                    return `${starter} ${sentence.charAt(0).toLowerCase()}${sentence.slice(1)}`;
+                }
+                return sentence;
+            });
+            
+            return varied.join(' ');
+        }
+        
+        function varySentenceStructure(text) {
+            const paragraphs = text.split('\n\n');
+            
+            return paragraphs.map(para => {
+                const sentences = para.split(/(?<=[.!?])\s+/);
+                
+                const varied = sentences.map(sentence => {
+                    // Randomly modify sentence structure
+                    if (Math.random() < 0.3) { // 30% chance
+                        // Option 1: Shorten long sentences
+                        if (sentence.length > 100) {
+                            return sentence.substring(0, 100) + "...";
+                        }
+                        // Option 2: Add casual interjection
+                        const interjections = ["You know,", "Well,", "I mean,"];
+                        const interjection = interjections[Math.floor(Math.random() * interjections.length)];
+                        return `${interjection} ${sentence.charAt(0).toLowerCase()}${sentence.slice(1)}`;
+                    }
+                    return sentence;
+                });
+                
+                return varied.join(' ');
+            }).join('\n\n');
+        }
+        
+        function applyPatterns(text, patterns) {
+            let result = text;
+            patterns.forEach(pattern => {
+                if (typeof pattern === 'object') {
+                    result = result.replace(pattern.pattern, pattern.replace);
+                }
+            });
+            return result;
+        }
+        
+        function finalHumanPolish(text) {
+            // Ensure proper paragraph structure
+            let paragraphs = text.split('\n\n');
+            
+            paragraphs = paragraphs.map(para => {
+                // Capitalize first letter
+                if (para.length > 0) {
+                    para = para.charAt(0).toUpperCase() + para.slice(1);
+                }
+                
+                // Ensure paragraphs end with punctuation
+                if (para.trim().length > 0 && !/[.!?]$/.test(para.trim())) {
+                    para = para + '.';
+                }
+                
+                return para;
+            });
+            
+            return paragraphs.join('\n\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .replace(/"\s+/g, '" ')
+                .replace(/\s+"/g, ' "');
+        }
+
+        // ========== UI FUNCTIONS ========== //
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        function updateCounters() {
+            const text = document.getElementById('inputText').value;
+            const charCount = text.length;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            
+            document.getElementById('charCount').textContent = charCount;
+            document.getElementById('wordCount').textContent = wordCount;
+            
+            // Update plan info (simulating daily usage)
+            const remainingWords = Math.max(0, FREE_PLAN_LIMIT - wordsUsedToday);
+            document.querySelector('.plan-info .highlight').textContent = `${remainingWords} words/day remaining`;
+        }
+        
+        function convertToHumanText() {
+            const text = document.getElementById('inputText').value;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            
+            if (!text.trim()) {
+                showStatus("Please enter some text first!", "error");
+                return;
+            }
+            
+            // Check word limit
+            if (wordsUsedToday + wordCount > FREE_PLAN_LIMIT) {
+                const remaining = FREE_PLAN_LIMIT - wordsUsedToday;
+                showStatus(`Free plan limit exceeded! You can only convert ${remaining} more words today.`, "error");
+                return;
+            }
+            
+            document.getElementById('outputText').value = "Converting with maximum humanization...";
+            
+            setTimeout(() => {
+                try {
+                    const result = processHumanConversion(text);
+                    document.getElementById('outputText').value = result;
+                    
+                    // Update usage
+                    wordsUsedToday += wordCount;
+                    updateCounters();
+                    
+                    showStatus("Text fully humanized! 100% natural output.", "success");
+                } catch (error) {
+                    document.getElementById('outputText').value = "Error during conversion";
+                    showStatus("Error: " + error.message, "error");
+                }
+            }, 500);
+        }
+        
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText');
+            if (!outputText.value.trim()) {
+                showStatus("Nothing to copy!", "error");
+                return;
+            }
+            
+            outputText.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const copyBtn = document.getElementById('copyBtn');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            copyBtn.style.background = '#0d9c6e';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.background = '#10b981';
+            }, 2000);
+            
+            showStatus("Copied to clipboard!", "success");
+        }
+        
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('inputText').focus();
+            updateCounters();
+            showStatus("Text cleared!", "success");
+        }
+
+        // ========== INITIALIZATION ========== //
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('convertBtn').addEventListener('click', convertToHumanText);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            document.getElementById('clearBtn').addEventListener('click', clearText);
+            document.getElementById('inputText').addEventListener('input', updateCounters);
+            
+            // Initialize counters
+            updateCounters();
+            
+            // Sample text to show it's working
+            document.getElementById('inputText').value = "As an AI language model, I can generate human-like text on any topic. However, AI detection tools can identify patterns that reveal the synthetic nature of this content. This article will explore techniques to transform AI-generated text into content that appears authentically human-written.";
+            updateCounters();
+            
+            // Auto-convert sample text
+            setTimeout(convertToHumanText, 1000);
+        });
+    </script>
+</body>
+</html>
