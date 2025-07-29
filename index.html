@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-to-Human Text Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <path d="M8 12h16M8 16h16M8 20h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h1>AI-to-Human Converter</h1>
+            </div>
+            <p class="subtitle">Transform AI-generated text into natural, human-like writing</p>
+        </header>
+
+        <main class="main">
+            <div class="converter-section">
+                <div class="input-section">
+                    <div class="section-header">
+                        <h2>AI-Generated Text</h2>
+                        <div class="word-count" id="inputWordCount">0 words</div>
+                    </div>
+                    <textarea 
+                        id="inputText" 
+                        placeholder="Paste your AI-generated text here..."
+                        class="text-input"
+                        rows="12"
+                    ></textarea>
+                    <div class="input-controls">
+                        <button id="clearInput" class="btn btn-secondary">Clear</button>
+                        <button id="pasteText" class="btn btn-secondary">Paste</button>
+                    </div>
+                </div>
+
+                <div class="conversion-controls">
+                    <div class="settings-panel">
+                        <h3>Conversion Settings</h3>
+                        <div class="setting-group">
+                            <label for="humanizationLevel">Humanization Level</label>
+                            <select id="humanizationLevel" class="select-input">
+                                <option value="light">Light - Minimal changes</option>
+                                <option value="moderate" selected>Moderate - Balanced approach</option>
+                                <option value="heavy">Heavy - Maximum humanization</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="writingStyle">Writing Style</label>
+                            <select id="writingStyle" class="select-input">
+                                <option value="casual">Casual</option>
+                                <option value="professional" selected>Professional</option>
+                                <option value="academic">Academic</option>
+                                <option value="creative">Creative</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="addPersonalTouch" checked>
+                                <span class="checkmark"></span>
+                                Add personal touches
+                            </label>
+                        </div>
+                        <div class="setting-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="varyStructure" checked>
+                                <span class="checkmark"></span>
+                                Vary sentence structure
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button id="convertText" class="btn btn-primary convert-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 10h12m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Convert to Human Text
+                    </button>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-header">
+                        <h2>Humanized Text</h2>
+                        <div class="word-count" id="outputWordCount">0 words</div>
+                    </div>
+                    <div id="outputText" class="text-output" contenteditable="true">
+                        Your converted text will appear here...
+                    </div>
+                    <div class="output-controls">
+                        <button id="copyOutput" class="btn btn-secondary">Copy</button>
+                        <button id="downloadOutput" class="btn btn-secondary">Download</button>
+                        <button id="regenerate" class="btn btn-secondary" disabled>Regenerate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <h2>Why Use Our AI-to-Human Converter?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Natural Flow</h3>
+                        <p>Transforms robotic AI text into natural, conversational language that feels authentically human.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Customizable</h3>
+                        <p>Adjust humanization levels and writing styles to match your specific needs and audience.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Results</h3>
+                        <p>Get humanized text in seconds with our advanced text processing algorithms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Privacy First</h3>
+                        <p>All processing happens locally in your browser. Your text never leaves your device.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 AI-to-Human Converter. Free tool for everyone.</p>
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Converting your text...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
