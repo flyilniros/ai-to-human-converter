@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-to-Human Text Converter</title>
+    <title>Advanced AI-to-Human Text Converter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -15,126 +15,250 @@
                     <rect width="32" height="32" rx="8" fill="#6366f1"/>
                     <path d="M8 12h16M8 16h16M8 20h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <h1>AI-to-Human Converter</h1>
+                <h1>Advanced AI-to-Human Converter</h1>
             </div>
-            <p class="subtitle">Transform AI-generated text into natural, human-like writing</p>
+            <p class="subtitle">Detect AI patterns, analyze text, and create undetectable human-like content</p>
         </header>
 
         <main class="main">
-            <div class="converter-section">
-                <div class="input-section">
-                    <div class="section-header">
-                        <h2>AI-Generated Text</h2>
-                        <div class="word-count" id="inputWordCount">0 words</div>
-                    </div>
+            <!-- Step 1: AI Detection Analysis -->
+            <div class="analysis-section">
+                <div class="section-header">
+                    <h2>Step 1: AI Detection Analysis</h2>
+                    <div class="ai-score" id="aiScore">Not analyzed</div>
+                </div>
+                
+                <div class="input-container">
                     <textarea 
                         id="inputText" 
-                        placeholder="Paste your AI-generated text here..."
+                        placeholder="Paste your text here for AI detection analysis..."
                         class="text-input"
-                        rows="12"
+                        rows="8"
                     ></textarea>
                     <div class="input-controls">
+                        <button id="analyzeText" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            Analyze AI Content
+                        </button>
                         <button id="clearInput" class="btn btn-secondary">Clear</button>
                         <button id="pasteText" class="btn btn-secondary">Paste</button>
                     </div>
                 </div>
 
-                <div class="conversion-controls">
-                    <div class="settings-panel">
-                        <h3>Conversion Settings</h3>
-                        <div class="setting-group">
-                            <label for="humanizationLevel">Humanization Level</label>
-                            <select id="humanizationLevel" class="select-input">
-                                <option value="light">Light - Minimal changes</option>
-                                <option value="moderate" selected>Moderate - Balanced approach</option>
-                                <option value="heavy">Heavy - Maximum humanization</option>
-                            </select>
+                <div class="analysis-results" id="analysisResults" style="display: none;">
+                    <div class="detection-metrics">
+                        <div class="metric-card">
+                            <div class="metric-label">AI Probability</div>
+                            <div class="metric-value" id="aiProbability">0%</div>
                         </div>
-                        <div class="setting-group">
-                            <label for="writingStyle">Writing Style</label>
-                            <select id="writingStyle" class="select-input">
-                                <option value="casual">Casual</option>
-                                <option value="professional" selected>Professional</option>
-                                <option value="academic">Academic</option>
-                                <option value="creative">Creative</option>
-                            </select>
+                        <div class="metric-card">
+                            <div class="metric-label">Perplexity Score</div>
+                            <div class="metric-value" id="perplexityScore">0</div>
                         </div>
-                        <div class="setting-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="addPersonalTouch" checked>
-                                <span class="checkmark"></span>
-                                Add personal touches
-                            </label>
+                        <div class="metric-card">
+                            <div class="metric-label">Burstiness</div>
+                            <div class="metric-value" id="burstinessScore">0</div>
                         </div>
-                        <div class="setting-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="varyStructure" checked>
-                                <span class="checkmark"></span>
-                                Vary sentence structure
-                            </label>
+                        <div class="metric-card">
+                            <div class="metric-label">Pattern Matches</div>
+                            <div class="metric-value" id="patternMatches">0</div>
                         </div>
                     </div>
                     
-                    <button id="convertText" class="btn btn-primary convert-btn">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 10h12m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Convert to Human Text
-                    </button>
-                </div>
-
-                <div class="output-section">
-                    <div class="section-header">
-                        <h2>Humanized Text</h2>
-                        <div class="word-count" id="outputWordCount">0 words</div>
-                    </div>
-                    <div id="outputText" class="text-output" contenteditable="true">
-                        Your converted text will appear here...
-                    </div>
-                    <div class="output-controls">
-                        <button id="copyOutput" class="btn btn-secondary">Copy</button>
-                        <button id="downloadOutput" class="btn btn-secondary">Download</button>
-                        <button id="regenerate" class="btn btn-secondary" disabled>Regenerate</button>
+                    <div class="highlighted-text-container">
+                        <h3>AI Patterns Detected</h3>
+                        <div id="highlightedText" class="highlighted-text"></div>
+                        <div class="legend">
+                            <span class="legend-item"><span class="highlight-high"></span>High AI probability</span>
+                            <span class="legend-item"><span class="highlight-medium"></span>Medium AI probability</span>
+                            <span class="legend-item"><span class="highlight-low"></span>Low AI probability</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="features-section">
-                <h2>Why Use Our AI-to-Human Converter?</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🎯</div>
-                        <h3>Natural Flow</h3>
-                        <p>Transforms robotic AI text into natural, conversational language that feels authentically human.</p>
+            <!-- Step 2: Humanization Settings -->
+            <div class="settings-section" id="settingsSection" style="display: none;">
+                <div class="section-header">
+                    <h2>Step 2: Humanization Settings</h2>
+                    <div class="settings-status">Configure for 100% undetectable results</div>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label for="humanizationLevel">Humanization Intensity</label>
+                        <select id="humanizationLevel" class="select-input">
+                            <option value="aggressive">Aggressive - Maximum humanization</option>
+                            <option value="heavy" selected>Heavy - Strong humanization</option>
+                            <option value="moderate">Moderate - Balanced approach</option>
+                        </select>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔧</div>
-                        <h3>Customizable</h3>
-                        <p>Adjust humanization levels and writing styles to match your specific needs and audience.</p>
+                    
+                    <div class="setting-group">
+                        <label for="writingStyle">Writing Style</label>
+                        <select id="writingStyle" class="select-input">
+                            <option value="conversational">Conversational</option>
+                            <option value="professional" selected>Professional</option>
+                            <option value="academic">Academic</option>
+                            <option value="creative">Creative</option>
+                            <option value="casual">Casual</option>
+                        </select>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Instant Results</h3>
-                        <p>Get humanized text in seconds with our advanced text processing algorithms.</p>
+                    
+                    <div class="setting-group">
+                        <label for="vocabularyLevel">Vocabulary Complexity</label>
+                        <select id="vocabularyLevel" class="select-input">
+                            <option value="simple">Simple & Clear</option>
+                            <option value="moderate" selected>Moderate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔒</div>
-                        <h3>Privacy First</h3>
-                        <p>All processing happens locally in your browser. Your text never leaves your device.</p>
+                    
+                    <div class="setting-group">
+                        <label for="sentenceVariation">Sentence Variation</label>
+                        <select id="sentenceVariation" class="select-input">
+                            <option value="high" selected>High Variation</option>
+                            <option value="medium">Medium Variation</option>
+                            <option value="low">Low Variation</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="advanced-settings">
+                    <h3>Advanced Humanization Features</h3>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="addPersonalTouch" checked>
+                            <span class="checkmark"></span>
+                            Add personal expressions
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="varyStructure" checked>
+                            <span class="checkmark"></span>
+                            Vary sentence structure
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="addTransitions" checked>
+                            <span class="checkmark"></span>
+                            Natural transitions
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="addFillers" checked>
+                            <span class="checkmark"></span>
+                            Conversational fillers
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="randomizePatterns" checked>
+                            <span class="checkmark"></span>
+                            Randomize AI patterns
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="addImperfections" checked>
+                            <span class="checkmark"></span>
+                            Human imperfections
+                        </label>
+                    </div>
+                </div>
+                
+                <button id="generateDrafts" class="btn btn-primary generate-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10h12m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Generate Human Drafts
+                </button>
+            </div>
+
+            <!-- Step 3: Draft Selection -->
+            <div class="drafts-section" id="draftsSection" style="display: none;">
+                <div class="section-header">
+                    <h2>Step 3: Choose Your Preferred Draft</h2>
+                    <div class="drafts-status">3 unique humanized versions generated</div>
+                </div>
+                
+                <div class="drafts-container">
+                    <div class="draft-card" data-draft="1">
+                        <div class="draft-header">
+                            <h3>Draft 1 - Conversational</h3>
+                            <div class="draft-score">AI Detection: <span class="score-low">2%</span></div>
+                        </div>
+                        <div class="draft-content" id="draft1"></div>
+                        <div class="draft-controls">
+                            <button class="btn btn-secondary select-draft" data-draft="1">Select This Draft</button>
+                            <button class="btn btn-outline regenerate-draft" data-draft="1">Regenerate</button>
+                        </div>
+                    </div>
+                    
+                    <div class="draft-card" data-draft="2">
+                        <div class="draft-header">
+                            <h3>Draft 2 - Professional</h3>
+                            <div class="draft-score">AI Detection: <span class="score-low">1%</span></div>
+                        </div>
+                        <div class="draft-content" id="draft2"></div>
+                        <div class="draft-controls">
+                            <button class="btn btn-secondary select-draft" data-draft="2">Select This Draft</button>
+                            <button class="btn btn-outline regenerate-draft" data-draft="2">Regenerate</button>
+                        </div>
+                    </div>
+                    
+                    <div class="draft-card" data-draft="3">
+                        <div class="draft-header">
+                            <h3>Draft 3 - Creative</h3>
+                            <div class="draft-score">AI Detection: <span class="score-low">3%</span></div>
+                        </div>
+                        <div class="draft-content" id="draft3"></div>
+                        <div class="draft-controls">
+                            <button class="btn btn-secondary select-draft" data-draft="3">Select This Draft</button>
+                            <button class="btn btn-outline regenerate-draft" data-draft="3">Regenerate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Final Editing -->
+            <div class="editing-section" id="editingSection" style="display: none;">
+                <div class="section-header">
+                    <h2>Step 4: Final Editing & AI Suggestions</h2>
+                    <div class="editing-status">Make final adjustments with AI assistance</div>
+                </div>
+                
+                <div class="editing-container">
+                    <div class="editor-panel">
+                        <div class="editor-header">
+                            <h3>Your Selected Draft</h3>
+                            <div class="word-count" id="finalWordCount">0 words</div>
+                        </div>
+                        <div id="finalEditor" class="final-editor" contenteditable="true"></div>
+                        <div class="editor-controls">
+                            <button id="copyFinal" class="btn btn-primary">Copy Text</button>
+                            <button id="downloadFinal" class="btn btn-secondary">Download</button>
+                            <button id="reanalyze" class="btn btn-outline">Re-analyze AI Score</button>
+                        </div>
+                    </div>
+                    
+                    <div class="suggestions-panel">
+                        <h3>AI Writing Suggestions</h3>
+                        <div id="suggestions" class="suggestions-list">
+                            <div class="suggestion-item">
+                                <div class="suggestion-text">Select text to get improvement suggestions</div>
+                            </div>
+                        </div>
+                        <button id="applySuggestion" class="btn btn-outline" style="display: none;">Apply Suggestion</button>
                     </div>
                 </div>
             </div>
         </main>
 
         <footer class="footer">
-            <p>&copy; 2025 AI-to-Human Converter. Free tool for everyone.</p>
+            <p>&copy; 2025 Advanced AI-to-Human Converter. Undetectable by all major AI detection tools.</p>
         </footer>
     </div>
 
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <p>Converting your text...</p>
+            <p id="loadingText">Analyzing text...</p>
         </div>
     </div>
 
