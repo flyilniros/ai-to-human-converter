@@ -257,6 +257,10 @@ class AdvancedAIToHumanConverter {
             return;
         }
 
+        if (!this.currentAnalysis.originalText || this.currentAnalysis.originalText.trim() === '') {
+            this.showNotification('No text available for humanization.', 'warning');
+            return;
+        }
         this.showLoading(true, 'Generating humanized drafts...');
         
         try {
@@ -265,11 +269,16 @@ class AdvancedAIToHumanConverter {
             const settings = this.getHumanizationSettings();
             const drafts = this.createHumanizedDrafts(this.currentAnalysis.originalText, settings);
             
+            if (!drafts || drafts.length === 0) {
+                throw new Error('Failed to generate drafts');
+            }
+            
             this.displayDrafts(drafts);
             this.showDraftsSection();
             
             this.showNotification('3 unique drafts generated successfully!', 'success');
         } catch (error) {
+            console.error('Draft generation error:', error);
             this.showNotification('Error generating drafts.', 'error');
         } finally {
             this.showLoading(false);
@@ -533,15 +542,27 @@ class AdvancedAIToHumanConverter {
     }
 
     displayDrafts(drafts) {
+        if (!drafts || drafts.length === 0) {
+            this.showNotification('Error: No drafts generated', 'error');
+            return;
+        }
+        
         drafts.forEach((draft, index) => {
             const draftElement = document.getElementById(`draft${draft.id}`);
+            if (!draftElement) {
+                console.error(`Draft element not found: draft${draft.id}`);
+                return;
+            }
+            
             draftElement.textContent = draft.content;
             
             // Update score display
             const scoreElement = draftElement.parentElement.querySelector('.draft-score span');
-            scoreElement.textContent = `${draft.aiScore}%`;
-            scoreElement.className = draft.aiScore <= 3 ? 'score-low' : 
-                                   draft.aiScore <= 6 ? 'score-medium' : 'score-high';
+            if (scoreElement) {
+                scoreElement.textContent = `${draft.aiScore}%`;
+                scoreElement.className = draft.aiScore <= 3 ? 'score-low' : 
+                                       draft.aiScore <= 6 ? 'score-medium' : 'score-high';
+            }
         });
         
         this.currentDrafts = drafts;
