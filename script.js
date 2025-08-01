@@ -16,13 +16,7 @@ class AdvancedAIToHumanConverter {
         this.pasteBtn = document.getElementById('pasteText');
         
         // Analysis elements
-        this.analysisResults = document.getElementById('analysisResults');
-        this.aiScore = document.getElementById('aiScore');
-        this.aiProbability = document.getElementById('aiProbability');
-        this.perplexityScore = document.getElementById('perplexityScore');
-        this.burstinessScore = document.getElementById('burstinessScore');
-        this.patternMatches = document.getElementById('patternMatches');
-        this.highlightedText = document.getElementById('highlightedText');
+        // Note: These will be accessed directly by ID in methods to avoid initialization errors
         
         // Settings elements
         this.settingsSection = document.getElementById('settingsSection');
@@ -183,7 +177,7 @@ class AdvancedAIToHumanConverter {
         });
         
         // Calculate final scores
-        const maxPossibleScore = sentences.length * 50;
+        const maxPossibleScore = Math.max(sentences.length * 50, 1);
         const aiProbability = Math.min(Math.round((aiScore / maxPossibleScore) * 100), 95);
         const perplexity = Math.round(Math.random() * 50 + 20); // Simulated
         const burstiness = Math.round(Math.random() * 30 + 10); // Simulated
@@ -199,30 +193,44 @@ class AdvancedAIToHumanConverter {
     }
 
     displayAnalysisResults(analysis) {
-        this.analysisResults.style.display = 'block';
+        const analysisSection = document.getElementById('analysisResults');
+        if (analysisSection) {
+            analysisSection.style.display = 'block';
+        }
         
         // Update metrics
-        this.aiProbability.textContent = `${analysis.aiProbability}%`;
-        this.perplexityScore.textContent = analysis.perplexity;
-        this.burstinessScore.textContent = analysis.burstiness;
-        this.patternMatches.textContent = analysis.patternCount;
+        const aiProbElement = document.getElementById('aiProbability');
+        const perplexityElement = document.getElementById('perplexityScore');
+        const burstinessElement = document.getElementById('burstinessScore');
+        const patternsElement = document.getElementById('patternMatches');
+        
+        if (aiProbElement) aiProbElement.textContent = `${analysis.aiProbability}%`;
+        if (perplexityElement) perplexityElement.textContent = analysis.perplexity;
+        if (burstinessElement) burstinessElement.textContent = analysis.burstiness;
+        if (patternsElement) patternsElement.textContent = analysis.patternCount;
         
         // Update AI score indicator
+        const aiScoreElement = document.getElementById('aiScore');
+        if (!aiScoreElement) return;
+        
         if (analysis.aiProbability > 70) {
-            this.aiScore.textContent = 'High AI Detection Risk';
-            this.aiScore.style.background = '#fee2e2';
-            this.aiScore.style.color = '#dc2626';
+            aiScoreElement.textContent = 'High AI Detection Risk';
+            aiScoreElement.style.background = '#fee2e2';
+            aiScoreElement.style.color = '#dc2626';
         } else if (analysis.aiProbability > 40) {
-            this.aiScore.textContent = 'Medium AI Detection Risk';
-            this.aiScore.style.background = '#fef3c7';
-            this.aiScore.style.color = '#d97706';
+            aiScoreElement.textContent = 'Medium AI Detection Risk';
+            aiScoreElement.style.background = '#fef3c7';
+            aiScoreElement.style.color = '#d97706';
         } else {
-            this.aiScore.textContent = 'Low AI Detection Risk';
-            this.aiScore.style.background = '#dcfce7';
-            this.aiScore.style.color = '#16a34a';
+            aiScoreElement.textContent = 'Low AI Detection Risk';
+            aiScoreElement.style.background = '#dcfce7';
+            aiScoreElement.style.color = '#16a34a';
         }
         
         // Display highlighted text
+        const highlightedElement = document.getElementById('highlightedText');
+        if (!highlightedElement) return;
+        
         const highlightedHTML = analysis.highlightedSegments
             .map(segment => {
                 if (segment.class) {
@@ -232,7 +240,7 @@ class AdvancedAIToHumanConverter {
             })
             .join('. ') + '.';
         
-        this.highlightedText.innerHTML = highlightedHTML;
+        highlightedElement.innerHTML = highlightedHTML;
         
         // Store analysis for later use
         this.currentAnalysis = analysis;
