@@ -12,86 +12,128 @@
         <header class="header">
             <div class="logo">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <rect width="32" height="32" rx="8" fill="#2563eb"/>
                     <path d="M8 12h16M8 16h16M8 20h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <h1>Advanced AI-to-Human Converter</h1>
+                <div class="header-text">
+                    <h1>Trusted AI-to-Human Text Converter</h1>
+                    <p class="subtitle">The most Advanced and Reliable AI Content Humanizer & Detector</p>
+                </div>
             </div>
-            <p class="subtitle">Detect AI patterns, analyze text, and create undetectable human-like content</p>
         </header>
 
         <main class="main">
-            <!-- Step 1: AI Detection Analysis -->
-            <div class="analysis-section">
-                <div class="section-header">
-                    <h2>Step 1: AI Detection Analysis</h2>
-                    <div class="ai-score" id="aiScore">Not analyzed</div>
-                </div>
-                
+            <!-- Step 1: Text Input and Analysis -->
+            <div class="input-section">
                 <div class="input-container">
+                    <div class="input-header">
+                        <div class="input-icons">
+                            <div class="icon-item">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M3 4h14M3 8h14M3 12h10M3 16h6" stroke="#6b7280" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="icon-item">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#6b7280" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="icon-item">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M12 6V4a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h5a2 2 0 002-2v-2" stroke="#6b7280" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div class="icon-item">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="#6b7280" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <textarea 
                         id="inputText" 
-                        placeholder="Paste your text here for AI detection analysis..."
+                        placeholder="Paste your AI-generated text here for analysis and humanization..."
                         class="text-input"
-                        rows="8"
+                        rows="12"
                     ></textarea>
+                    
                     <div class="input-controls">
                         <button id="analyzeText" class="btn btn-primary">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/>
                             </svg>
-                            Analyze AI Content
+                            Detect Text
                         </button>
-                        <button id="clearInput" class="btn btn-secondary">Clear</button>
-                        <button id="pasteText" class="btn btn-secondary">Paste</button>
-                    </div>
-                </div>
-
-                <div class="analysis-results" id="analysisResults" style="display: none;">
-                    <div class="detection-metrics">
-                        <div class="metric-card">
-                            <div class="metric-label">AI Probability</div>
-                            <div class="metric-value" id="aiProbability">0%</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Perplexity Score</div>
-                            <div class="metric-value" id="perplexityScore">0</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Burstiness</div>
-                            <div class="metric-value" id="burstinessScore">0</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">Pattern Matches</div>
-                            <div class="metric-value" id="patternMatches">0</div>
-                        </div>
-                    </div>
-                    
-                    <div class="highlighted-text-container">
-                        <h3>AI Patterns Detected</h3>
-                        <div id="highlightedText" class="highlighted-text"></div>
-                        <div class="legend">
-                            <span class="legend-item"><span class="highlight-high"></span>High AI probability</span>
-                            <span class="legend-item"><span class="highlight-medium"></span>Medium AI probability</span>
-                            <span class="legend-item"><span class="highlight-low"></span>Low AI probability</span>
+                        <button id="uploadFile" class="btn btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M14 10v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4M8 2v8m0-8L5 5m3-3l3 3" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Upload File
+                        </button>
+                        <div class="char-count">
+                            <span id="charCount">0</span>/125,000 Characters
+                            <a href="#" class="upgrade-link">Check 125,000 characters Upgrade Here</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 2: Humanization Settings -->
+            <!-- Analysis Results -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="result-header">
+                    <h2 id="resultTitle">Your Text is Likely Human written, may include parts generated by AI/GPT</h2>
+                </div>
+                
+                <div class="score-container">
+                    <div class="score-circle">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                            <circle id="scoreCircle" cx="60" cy="60" r="50" fill="none" stroke="#10b981" stroke-width="8" 
+                                    stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div class="score-text">
+                            <span id="scorePercentage">0%</span>
+                            <span class="score-label">AI GPT*</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-analysis">
+                    <div id="highlightedText" class="highlighted-content"></div>
+                </div>
+
+                <div class="humanize-section">
+                    <button id="humanizeBtn" class="btn btn-humanize">
+                        Humanize Text
+                    </button>
+                    <p class="humanize-subtitle">Make Your Text Human With Undetectable AI</p>
+                    <div class="stats">
+                        <span class="stat-item">
+                            <span class="highlight-indicator"></span>
+                            Highlighted text is suspected to be most likely generated by AI*
+                        </span>
+                        <div class="text-stats">
+                            <span id="charStats">0 Characters</span>
+                            <span id="wordStats">0 Words</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Humanization Settings -->
             <div class="settings-section" id="settingsSection" style="display: none;">
                 <div class="section-header">
-                    <h2>Step 2: Humanization Settings</h2>
-                    <div class="settings-status">Configure for 100% undetectable results</div>
+                    <h2>Humanization Settings</h2>
+                    <p>Configure settings for maximum undetectability</p>
                 </div>
                 
                 <div class="settings-grid">
                     <div class="setting-group">
                         <label for="humanizationLevel">Humanization Intensity</label>
                         <select id="humanizationLevel" class="select-input">
-                            <option value="aggressive">Aggressive - Maximum humanization</option>
-                            <option value="heavy" selected>Heavy - Strong humanization</option>
+                            <option value="maximum">Maximum - Undetectable results</option>
+                            <option value="high" selected>High - Strong humanization</option>
                             <option value="moderate">Moderate - Balanced approach</option>
                         </select>
                     </div>
@@ -99,8 +141,8 @@
                     <div class="setting-group">
                         <label for="writingStyle">Writing Style</label>
                         <select id="writingStyle" class="select-input">
-                            <option value="conversational">Conversational</option>
-                            <option value="professional" selected>Professional</option>
+                            <option value="natural" selected>Natural & Conversational</option>
+                            <option value="professional">Professional</option>
                             <option value="academic">Academic</option>
                             <option value="creative">Creative</option>
                             <option value="casual">Casual</option>
@@ -110,130 +152,130 @@
                     <div class="setting-group">
                         <label for="vocabularyLevel">Vocabulary Complexity</label>
                         <select id="vocabularyLevel" class="select-input">
+                            <option value="varied" selected>Varied & Natural</option>
                             <option value="simple">Simple & Clear</option>
-                            <option value="moderate" selected>Moderate</option>
                             <option value="advanced">Advanced</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="sentenceVariation">Sentence Variation</label>
-                        <select id="sentenceVariation" class="select-input">
-                            <option value="high" selected>High Variation</option>
-                            <option value="medium">Medium Variation</option>
-                            <option value="low">Low Variation</option>
                         </select>
                     </div>
                 </div>
                 
-                <div class="advanced-settings">
+                <div class="advanced-options">
                     <h3>Advanced Humanization Features</h3>
                     <div class="checkbox-grid">
                         <label class="checkbox-label">
                             <input type="checkbox" id="addPersonalTouch" checked>
                             <span class="checkmark"></span>
-                            Add personal expressions
+                            Add personal expressions & opinions
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" id="varyStructure" checked>
                             <span class="checkmark"></span>
-                            Vary sentence structure
+                            Vary sentence structure & length
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" id="addTransitions" checked>
                             <span class="checkmark"></span>
-                            Natural transitions
+                            Natural transitions & flow
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" id="addFillers" checked>
+                            <input type="checkbox" id="addContractions" checked>
                             <span class="checkmark"></span>
-                            Conversational fillers
+                            Contractions & casual language
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" id="randomizePatterns" checked>
+                            <input type="checkbox" id="removePatterns" checked>
                             <span class="checkmark"></span>
-                            Randomize AI patterns
+                            Remove AI detection patterns
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" id="addImperfections" checked>
                             <span class="checkmark"></span>
-                            Human imperfections
+                            Subtle human imperfections
                         </label>
                     </div>
                 </div>
                 
-                <button id="generateDrafts" class="btn btn-primary generate-btn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M4 10h12m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Generate Human Drafts
+                <button id="generateDrafts" class="btn btn-generate">
+                    Generate Humanized Versions
                 </button>
             </div>
 
-            <!-- Step 3: Draft Selection -->
+            <!-- Draft Selection -->
             <div class="drafts-section" id="draftsSection" style="display: none;">
                 <div class="section-header">
-                    <h2>Step 3: Choose Your Preferred Draft</h2>
-                    <div class="drafts-status">3 unique humanized versions generated</div>
+                    <h2>Choose Your Preferred Version</h2>
+                    <p>3 unique humanized versions with ultra-low AI detection scores</p>
                 </div>
                 
                 <div class="drafts-container">
                     <div class="draft-card" data-draft="1">
                         <div class="draft-header">
-                            <h3>Draft 1 - Conversational</h3>
-                            <div class="draft-score">AI Detection: <span class="score-low">2%</span></div>
+                            <h3>Version 1 - Natural Flow</h3>
+                            <div class="draft-score">AI Detection: <span class="score-ultra-low" id="score1">1%</span></div>
                         </div>
                         <div class="draft-content" id="draft1"></div>
                         <div class="draft-controls">
-                            <button class="btn btn-secondary select-draft" data-draft="1">Select This Draft</button>
+                            <button class="btn btn-select select-draft" data-draft="1">Select This Version</button>
                             <button class="btn btn-outline regenerate-draft" data-draft="1">Regenerate</button>
                         </div>
                     </div>
                     
                     <div class="draft-card" data-draft="2">
                         <div class="draft-header">
-                            <h3>Draft 2 - Professional</h3>
-                            <div class="draft-score">AI Detection: <span class="score-low">1%</span></div>
+                            <h3>Version 2 - Conversational</h3>
+                            <div class="draft-score">AI Detection: <span class="score-ultra-low" id="score2">0%</span></div>
                         </div>
                         <div class="draft-content" id="draft2"></div>
                         <div class="draft-controls">
-                            <button class="btn btn-secondary select-draft" data-draft="2">Select This Draft</button>
+                            <button class="btn btn-select select-draft" data-draft="2">Select This Version</button>
                             <button class="btn btn-outline regenerate-draft" data-draft="2">Regenerate</button>
                         </div>
                     </div>
                     
                     <div class="draft-card" data-draft="3">
                         <div class="draft-header">
-                            <h3>Draft 3 - Creative</h3>
-                            <div class="draft-score">AI Detection: <span class="score-low">3%</span></div>
+                            <h3>Version 3 - Personal Touch</h3>
+                            <div class="draft-score">AI Detection: <span class="score-ultra-low" id="score3">2%</span></div>
                         </div>
                         <div class="draft-content" id="draft3"></div>
                         <div class="draft-controls">
-                            <button class="btn btn-secondary select-draft" data-draft="3">Select This Draft</button>
+                            <button class="btn btn-select select-draft" data-draft="3">Select This Version</button>
                             <button class="btn btn-outline regenerate-draft" data-draft="3">Regenerate</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 4: Final Editing -->
+            <!-- Final Editing -->
             <div class="editing-section" id="editingSection" style="display: none;">
                 <div class="section-header">
-                    <h2>Step 4: Final Editing & AI Suggestions</h2>
-                    <div class="editing-status">Make final adjustments with AI assistance</div>
+                    <h2>Final Review & Export</h2>
+                    <p>Make final adjustments and export your humanized text</p>
                 </div>
                 
                 <div class="editing-container">
                     <div class="editor-panel">
                         <div class="editor-header">
-                            <h3>Your Selected Draft</h3>
-                            <div class="word-count" id="finalWordCount">0 words</div>
+                            <h3>Your Humanized Text</h3>
+                            <div class="final-score">
+                                AI Detection: <span id="finalScore" class="score-ultra-low">0%</span>
+                            </div>
                         </div>
                         <div id="finalEditor" class="final-editor" contenteditable="true"></div>
                         <div class="editor-controls">
-                            <button id="copyFinal" class="btn btn-primary">Copy Text</button>
-                            <button id="downloadFinal" class="btn btn-secondary">Download</button>
-                            <button id="reanalyze" class="btn btn-outline">Re-analyze AI Score</button>
+                            <button id="copyFinal" class="btn btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M4 2h8a2 2 0 012 2v8M4 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                Copy Text
+                            </button>
+                            <button id="exportPdf" class="btn btn-secondary">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M4 8V6a2 2 0 012-2h4a2 2 0 012 2v2M4 8h8M4 8v6a2 2 0 002 2h4a2 2 0 002-2V8" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                Export to PDF
+                            </button>
+                            <button id="reanalyze" class="btn btn-outline">Re-analyze</button>
                         </div>
                     </div>
                     
@@ -244,15 +286,53 @@
                                 <div class="suggestion-text">Select text to get improvement suggestions</div>
                             </div>
                         </div>
-                        <button id="applySuggestion" class="btn btn-outline" style="display: none;">Apply Suggestion</button>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer class="footer">
-            <p>&copy; 2025 Advanced AI-to-Human Converter. Undetectable by all major AI detection tools.</p>
-        </footer>
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="features-header">
+                <h2>Simple and Credible AI Humanizer Tool for Free</h2>
+                <p>Millions of Users Trust Our Tool, See what sets us apart</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect width="48" height="48" rx="8" fill="#dbeafe"/>
+                            <path d="M12 16h24M12 24h24M12 32h16" stroke="#2563eb" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Advanced Detection</h3>
+                    <p>Every sentence is analyzed with advanced AI detection algorithms, showing the percentage of AI content in the text</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect width="48" height="48" rx="8" fill="#dcfce7"/>
+                            <path d="M20 24l4 4 8-8" stroke="#16a34a" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Multiple Features</h3>
+                    <p>Enjoy our top-notch Humanizer, Grammar checker, Paraphraser, Summarizer, Translator, Writing Assistant</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect width="48" height="48" rx="8" fill="#fef3c7"/>
+                            <circle cx="24" cy="24" r="8" stroke="#d97706" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>High Accuracy Model</h3>
+                    <p>Advanced and premium model trained on all languages to provide highly accurate results</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <div id="loadingOverlay" class="loading-overlay hidden">
