@@ -348,6 +348,8 @@ class AdvancedAIToHumanConverter {
     }
 
     removeAIPatterns(text) {
+        let result = text;
+        
         const aiToHumanReplacements = {
             // Formal connectors to casual
             'Furthermore,': ['Also,', 'Plus,', 'What\'s more,', 'On top of that,'][Math.floor(Math.random() * 4)],
@@ -386,7 +388,7 @@ class AdvancedAIToHumanConverter {
         
         for (const [formal, casual] of Object.entries(aiToHumanReplacements)) {
             const regex = new RegExp(`\\b${formal}\\b`, 'gi');
-            result = text.replace(regex, casual);
+            result = result.replace(regex, casual);
         }
         
         return result;
