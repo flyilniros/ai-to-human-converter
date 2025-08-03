@@ -33,7 +33,7 @@ class UltraAdvancedAIToHumanConverter {
         this.generateBtn = document.getElementById('generateDrafts');
         
         // Advanced options
-        this.addPersonalTouch = document.getElementById('addPersonalTouch');
+        this.addPersonalTouchCheckbox = document.getElementById('addPersonalTouch');
         this.varyStructure = document.getElementById('varyStructure');
         this.addTransitions = document.getElementById('addTransitions');
         this.addContractions = document.getElementById('addContractions');
@@ -436,7 +436,7 @@ class UltraAdvancedAIToHumanConverter {
             intensity: this.humanizationLevel.value,
             writingStyle: this.writingStyle.value,
             vocabulary: this.vocabularyLevel.value,
-            personalTouch: this.addPersonalTouch.checked,
+            personalTouch: this.addPersonalTouchCheckbox.checked,
             varyStructure: this.varyStructure.checked,
             addTransitions: this.addTransitions.checked,
             addContractions: this.addContractions.checked,
