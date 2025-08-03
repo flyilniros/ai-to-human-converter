@@ -449,16 +449,31 @@ class UltraAdvancedAIToHumanConverter {
         // Simulate advanced humanization
         let humanized = text;
         
+        // Advanced humanization for 0% AI detection
+        humanized = this.applyAdvancedHumanization(humanized, settings);
+        
         // Remove AI patterns
         if (settings.removePatterns) {
             humanized = humanized.replace(/\b(furthermore|moreover|additionally)\b/gi, (match) => {
-                const alternatives = ['also', 'plus', 'and', 'besides'];
+                const alternatives = ['also', 'plus', 'and', 'besides', 'on top of that', 'what\'s more'];
                 return alternatives[Math.floor(Math.random() * alternatives.length)];
             });
             
-            humanized = humanized.replace(/\b(it is important to note)\b/gi, 'worth mentioning');
-            humanized = humanized.replace(/\b(comprehensive)\b/gi, 'complete');
+            humanized = humanized.replace(/\b(it is important to note)\b/gi, (match) => {
+                const alternatives = ['worth mentioning', 'here\'s the thing', 'what\'s interesting is', 'I should point out'];
+                return alternatives[Math.floor(Math.random() * alternatives.length)];
+            });
+            
+            humanized = humanized.replace(/\b(comprehensive)\b/gi, (match) => {
+                const alternatives = ['complete', 'thorough', 'full', 'detailed', 'in-depth'];
+                return alternatives[Math.floor(Math.random() * alternatives.length)];
+            });
+            
             humanized = humanized.replace(/\b(utilize)\b/gi, 'use');
+            humanized = humanized.replace(/\b(optimal)\b/gi, 'best');
+            humanized = humanized.replace(/\b(numerous)\b/gi, 'many');
+            humanized = humanized.replace(/\b(substantial)\b/gi, 'big');
+            humanized = humanized.replace(/\b(significant)\b/gi, 'important');
         }
         
         // Add contractions
@@ -468,21 +483,26 @@ class UltraAdvancedAIToHumanConverter {
             humanized = humanized.replace(/\bwill not\b/gi, "won't");
             humanized = humanized.replace(/\bit is\b/gi, "it's");
             humanized = humanized.replace(/\bthey are\b/gi, "they're");
+            humanized = humanized.replace(/\bwe are\b/gi, "we're");
+            humanized = humanized.replace(/\byou are\b/gi, "you're");
+            humanized = humanized.replace(/\bI am\b/gi, "I'm");
+            humanized = humanized.replace(/\bwould have\b/gi, "would've");
+            humanized = humanized.replace(/\bcould have\b/gi, "could've");
+            humanized = humanized.replace(/\bshould have\b/gi, "should've");
         }
         
         // Add personal touch
         if (settings.personalTouch && settings.style === 'personal') {
             const personalPhrases = [
-                'In my experience, ',
-                'I think ',
-                'From what I\'ve seen, ',
-                'Personally, ',
-                'I believe '
+                'In my experience, ', 'I think ', 'From what I\'ve seen, ',
+                'Personally, ', 'I believe ', 'It seems to me that ',
+                'From my perspective, ', 'I\'ve noticed that ', 'My take is that ',
+                'What I\'ve found is ', 'In my view, ', 'I\'d say that '
             ];
             
             const sentences = humanized.split('. ');
-            if (sentences.length > 2) {
-                const randomIndex = Math.floor(Math.random() * Math.min(3, sentences.length));
+            if (sentences.length > 1) {
+                const randomIndex = Math.floor(Math.random() * Math.min(2, sentences.length));
                 const phrase = personalPhrases[Math.floor(Math.random() * personalPhrases.length)];
                 sentences[randomIndex] = phrase + sentences[randomIndex].toLowerCase();
                 humanized = sentences.join('. ');
@@ -523,14 +543,29 @@ class UltraAdvancedAIToHumanConverter {
         // Add occasional informal language
         text = text.replace(/\bvery good\b/gi, 'pretty good');
         text = text.replace(/\bvery important\b/gi, 'really important');
+        text = text.replace(/\bvery interesting\b/gi, 'pretty interesting');
+        text = text.replace(/\bvery difficult\b/gi, 'really tough');
+        text = text.replace(/\bvery easy\b/gi, 'pretty simple');
         
         // Add occasional hesitation markers (sparingly)
         if (Math.random() < 0.1) {
             text = text.replace(/\. However,/gi, '. Well, however,');
+            text = text.replace(/\. But/gi, '. But you know,');
+        }
+        
+        // Add natural filler words occasionally
+        if (Math.random() < 0.15) {
+            text = text.replace(/\bI think\b/gi, 'I think, you know,');
+            text = text.replace(/\bactually\b/gi, 'actually, um,');
+        }
+        
+        // Add natural redundancies
+        if (Math.random() < 0.1) {
+            text = text.replace(/\bThis is important\b/gi, 'This is important, really important');
+            text = text.replace(/\bIt works well\b/gi, 'It works well, works really well');
         }
         
         return text;
-    }
 
     displayDrafts(versions) {
         versions.forEach((version, index) => {
@@ -620,11 +655,12 @@ class UltraAdvancedAIToHumanConverter {
         const selectedText = selection.toString().trim();
         
         if (selectedText.length > 0) {
+            this.showAISuggestionPanel(selectedText);
             this.generateSuggestions(selectedText);
         } else {
+            this.hideAISuggestionPanel();
             this.clearSuggestions();
         }
-    }
 
     generateSuggestions(selectedText) {
         const suggestions = [
@@ -690,7 +726,7 @@ class UltraAdvancedAIToHumanConverter {
                 improvedText = this.simplifyText(selectedText);
                 break;
             case 'personal':
-                improvedText = this.addPersonalTouch(selectedText);
+                improvedText = this.addPersonalTouchToText(selectedText);
                 break;
             case 'vary':
                 improvedText = this.varysentenceStructure(selectedText);
@@ -707,8 +743,19 @@ class UltraAdvancedAIToHumanConverter {
             .replace(/\bcannot\b/gi, "can't")
             .replace(/\bwill not\b/gi, "won't")
             .replace(/\bit is\b/gi, "it's")
+            .replace(/\bthey are\b/gi, "they're")
+            .replace(/\bwe are\b/gi, "we're")
+            .replace(/\byou are\b/gi, "you're")
+            .replace(/\bI am\b/gi, "I'm")
             .replace(/\bHowever,\b/gi, "But")
-            .replace(/\bTherefore,\b/gi, "So");
+            .replace(/\bTherefore,\b/gi, "So")
+            .replace(/\bNevertheless,\b/gi, "Still")
+            .replace(/\bFurthermore,\b/gi, "Plus")
+            .replace(/\bIn addition,\b/gi, "Also")
+            .replace(/\bConsequently,\b/gi, "So")
+            .replace(/\bSubsequently,\b/gi, "Then")
+            .replace(/\bMoreover,\b/gi, "And")
+            .replace(/\bAdditionally,\b/gi, "Also");
     }
 
     simplifyText(text) {
@@ -717,11 +764,24 @@ class UltraAdvancedAIToHumanConverter {
             .replace(/\bcomprehensive\b/gi, 'complete')
             .replace(/\bfacilitate\b/gi, 'help')
             .replace(/\bdemonstrate\b/gi, 'show')
-            .replace(/\bsubsequently\b/gi, 'then');
+            .replace(/\bsubsequently\b/gi, 'then')
+            .replace(/\bcommence\b/gi, 'start')
+            .replace(/\bterminate\b/gi, 'end')
+            .replace(/\bascertain\b/gi, 'find out')
+            .replace(/\baccommodate\b/gi, 'fit')
+            .replace(/\bendevor\b/gi, 'try')
+            .replace(/\boptimize\b/gi, 'improve')
+            .replace(/\bimplement\b/gi, 'do')
+            .replace(/\bmethodology\b/gi, 'method')
+            .replace(/\bparadigm\b/gi, 'approach');
     }
 
-    addPersonalTouch(text) {
-        const personalPhrases = ['I think', 'In my view', 'From my experience'];
+    addPersonalTouchToText(text) {
+        const personalPhrases = [
+            'I think', 'In my view', 'From my experience', 'Personally',
+            'From what I\'ve seen', 'In my opinion', 'I believe',
+            'It seems to me', 'I\'ve found that', 'My take is'
+        ];
         const randomPhrase = personalPhrases[Math.floor(Math.random() * personalPhrases.length)];
         return `${randomPhrase}, ${text.toLowerCase()}`;
     }
