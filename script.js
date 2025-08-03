@@ -566,6 +566,7 @@ class UltraAdvancedAIToHumanConverter {
         }
         
         return text;
+    }
 
     displayDrafts(versions) {
         versions.forEach((version, index) => {
@@ -661,6 +662,7 @@ class UltraAdvancedAIToHumanConverter {
             this.hideAISuggestionPanel();
             this.clearSuggestions();
         }
+    }
 
     generateSuggestions(selectedText) {
         const suggestions = [
