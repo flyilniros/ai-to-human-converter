@@ -6,6 +6,9 @@ class UltraAdvancedAIToHumanConverter {
         this.analysisResults = null;
         this.humanizedVersions = [];
         this.selectedVersion = null;
+        this.textHistory = [];
+        this.historyIndex = -1;
+        this.maxHistorySize = 50;
     }
 
     initializeElements() {
@@ -14,6 +17,12 @@ class UltraAdvancedAIToHumanConverter {
         this.analyzeBtn = document.getElementById('analyzeText');
         this.uploadBtn = document.getElementById('uploadFile');
         this.charCount = document.getElementById('charCount');
+        
+        // Navigation elements
+        this.historyBtn = document.querySelector('.icon-item:nth-child(1)');
+        this.refreshBtn = document.querySelector('.icon-item:nth-child(2)');
+        this.copyBtn = document.querySelector('.icon-item:nth-child(3)');
+        this.pasteBtn = document.querySelector('.icon-item:nth-child(4)');
         
         // Results elements
         this.resultsSection = document.getElementById('resultsSection');
@@ -102,12 +111,34 @@ class UltraAdvancedAIToHumanConverter {
         
         this.uploadBtn.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => this.processUploadedFile(e.target.files[0]));
+        
+        // Navigation events
+        if (this.historyBtn) {
+            this.historyBtn.addEventListener('click', () => this.showTextHistory());
+        }
+        
+        if (this.refreshBtn) {
+            this.refreshBtn.addEventListener('click', () => this.refreshPage());
+        }
+        
+        if (this.copyBtn) {
+            this.copyBtn.addEventListener('click', () => this.copyCurrentText());
+        }
+        
+        if (this.pasteBtn) {
+            this.pasteBtn.addEventListener('click', () => this.pasteFromClipboard());
+        }
     }
 
     updateCharCount() {
         const text = this.inputText.value;
         const charCount = text.length;
         this.charCount.textContent = charCount.toLocaleString();
+        
+        // Save to history when text changes significantly
+        if (text.length > 10 && text !== this.getLastHistoryItem()) {
+            this.saveToHistory(text);
+        }
         
         // Update character count color based on limit
         if (charCount > 125000) {
@@ -993,9 +1024,364 @@ class UltraAdvancedAIToHumanConverter {
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+    
+    // Navigation Functions
+    saveToHistory(text) {
+        // Remove duplicates and add to history
+        this.textHistory = this.textHistory.filter(item => item.text !== text);
+        
+        const historyItem = {
+            text: text,
+            timestamp: new Date(),
+            charCount: text.length,
+            wordCount: text.split(/\s+/).filter(w => w.length > 0).length
+        };
+        
+        this.textHistory.unshift(historyItem);
+        
+        // Limit history size
+        if (this.textHistory.length > this.maxHistorySize) {
+            this.textHistory = this.textHistory.slice(0, this.maxHistorySize);
+        }
+        
+        // Save to localStorage
+        try {
+            localStorage.setItem('textHistory', JSON.stringify(this.textHistory));
+        } catch (e) {
+            console.warn('Could not save history to localStorage:', e);
+        }
+    }
+    
+    getLastHistoryItem() {
+        return this.textHistory.length > 0 ? this.textHistory[0].text : '';
+    }
+    
+    loadHistoryFromStorage() {
+        try {
+            const stored = localStorage.getItem('textHistory');
+            if (stored) {
+                this.textHistory = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.warn('Could not load history from localStorage:', e);
+            this.textHistory = [];
+        }
+    }
+    
+    showTextHistory() {
+        this.loadHistoryFromStorage();
+        
+        if (this.textHistory.length === 0) {
+            this.showNotification('No text history available', 'info');
+            return;
+        }
+        
+        // Create history modal
+        const modal = document.createElement('div');
+        modal.className = 'history-modal';
+        modal.innerHTML = `
+            <div class="history-modal-content">
+                <div class="history-header">
+                    <h3>Text History</h3>
+                    <button class="history-close">&times;</button>
+                </div>
+                <div class="history-list">
+                    ${this.textHistory.map((item, index) => `
+                        <div class="history-item" data-index="${index}">
+                            <div class="history-item-header">
+                                <span class="history-timestamp">${this.formatDate(item.timestamp)}</span>
+                                <span class="history-stats">${item.charCount} chars, ${item.wordCount} words</span>
+                            </div>
+                            <div class="history-text">${this.truncateText(item.text, 150)}</div>
+                            <div class="history-actions">
+                                <button class="btn btn-primary history-load" data-index="${index}">Load</button>
+                                <button class="btn btn-outline history-delete" data-index="${index}">Delete</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="history-footer">
+                    <button class="btn btn-outline clear-history">Clear All History</button>
+                </div>
+            </div>
+        `;
+        
+        // Add modal styles
+        if (!document.querySelector('#history-modal-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'history-modal-styles';
+            styles.textContent = `
+                .history-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(15, 23, 42, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    backdrop-filter: blur(8px);
+                }
+                
+                .history-modal-content {
+                    background: var(--bg-secondary);
+                    border-radius: 16px;
+                    padding: 2rem;
+                    max-width: 800px;
+                    max-height: 80vh;
+                    width: 90%;
+                    border: 1px solid var(--border-color);
+                    box-shadow: var(--shadow-lg);
+                }
+                
+                .history-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                    padding-bottom: 1rem;
+                    border-bottom: 1px solid var(--border-color);
+                }
+                
+                .history-header h3 {
+                    color: var(--text-primary);
+                    font-size: 1.5rem;
+                    margin: 0;
+                }
+                
+                .history-close {
+                    background: none;
+                    border: none;
+                    color: var(--text-primary);
+                    font-size: 2rem;
+                    cursor: pointer;
+                    padding: 0;
+                    line-height: 1;
+                }
+                
+                .history-list {
+                    max-height: 50vh;
+                    overflow-y: auto;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .history-item {
+                    background: var(--bg-tertiary);
+                    border-radius: 8px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                    border: 1px solid var(--border-color);
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .history-item:hover {
+                    border-color: var(--accent-primary);
+                    background: rgba(59, 130, 246, 0.1);
+                }
+                
+                .history-item-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.75rem;
+                    font-size: 0.9rem;
+                }
+                
+                .history-timestamp {
+                    color: var(--text-secondary);
+                    font-weight: 500;
+                }
+                
+                .history-stats {
+                    color: var(--text-muted);
+                }
+                
+                .history-text {
+                    color: var(--text-primary);
+                    line-height: 1.6;
+                    margin-bottom: 1rem;
+                    font-size: 0.95rem;
+                }
+                
+                .history-actions {
+                    display: flex;
+                    gap: 0.75rem;
+                }
+                
+                .history-actions .btn {
+                    padding: 0.5rem 1rem;
+                    font-size: 0.85rem;
+                }
+                
+                .history-footer {
+                    text-align: center;
+                    padding-top: 1rem;
+                    border-top: 1px solid var(--border-color);
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+        
+        document.body.appendChild(modal);
+        
+        // Event listeners
+        modal.querySelector('.history-close').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+        modal.querySelectorAll('.history-load').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(e.target.dataset.index);
+                this.loadFromHistory(index);
+                document.body.removeChild(modal);
+            });
+        });
+        
+        modal.querySelectorAll('.history-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(e.target.dataset.index);
+                this.deleteFromHistory(index);
+                // Refresh modal
+                document.body.removeChild(modal);
+                this.showTextHistory();
+            });
+        });
+        
+        modal.querySelector('.clear-history').addEventListener('click', () => {
+            this.clearHistory();
+            document.body.removeChild(modal);
+        });
+    }
+    
+    loadFromHistory(index) {
+        if (index >= 0 && index < this.textHistory.length) {
+            this.inputText.value = this.textHistory[index].text;
+            this.updateCharCount();
+            this.showNotification('Text loaded from history', 'success');
+        }
+    }
+    
+    deleteFromHistory(index) {
+        if (index >= 0 && index < this.textHistory.length) {
+            this.textHistory.splice(index, 1);
+            try {
+                localStorage.setItem('textHistory', JSON.stringify(this.textHistory));
+            } catch (e) {
+                console.warn('Could not save history to localStorage:', e);
+            }
+            this.showNotification('History item deleted', 'success');
+        }
+    }
+    
+    clearHistory() {
+        this.textHistory = [];
+        try {
+            localStorage.removeItem('textHistory');
+        } catch (e) {
+            console.warn('Could not clear history from localStorage:', e);
+        }
+        this.showNotification('History cleared', 'success');
+    }
+    
+    refreshPage() {
+        if (this.inputText.value.trim().length > 0) {
+            if (confirm('Are you sure you want to refresh? Any unsaved text will be lost.')) {
+                location.reload();
+            }
+        } else {
+            location.reload();
+        }
+    }
+    
+    copyCurrentText() {
+        let textToCopy = '';
+        
+        // Determine what text to copy based on current section
+        if (this.editingSection && this.editingSection.style.display !== 'none') {
+            textToCopy = this.finalEditor.textContent;
+        } else if (this.selectedVersion) {
+            textToCopy = this.selectedVersion.content;
+        } else if (this.inputText.value.trim()) {
+            textToCopy = this.inputText.value;
+        } else {
+            this.showNotification('No text to copy', 'warning');
+            return;
+        }
+        
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                this.showNotification('Text copied to clipboard!', 'success');
+            }).catch(() => {
+                this.fallbackCopyText(textToCopy);
+            });
+        } else {
+            this.fallbackCopyText(textToCopy);
+        }
+    }
+    
+    async pasteFromClipboard() {
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (text.trim()) {
+                    if (this.inputText.value.trim() && 
+                        !confirm('This will replace the current text. Continue?')) {
+                        return;
+                    }
+                    
+                    this.inputText.value = text;
+                    this.updateCharCount();
+                    this.showNotification('Text pasted from clipboard!', 'success');
+                } else {
+                    this.showNotification('Clipboard is empty', 'warning');
+                }
+            } else {
+                this.showNotification('Clipboard access not supported in this browser', 'warning');
+            }
+        } catch (error) {
+            if (error.name === 'NotAllowedError') {
+                this.showNotification('Clipboard access denied. Please allow clipboard permissions.', 'warning');
+            } else {
+                this.showNotification('Failed to read from clipboard', 'error');
+            }
+        }
+    }
+    
+    formatDate(date) {
+        const d = new Date(date);
+        const now = new Date();
+        const diffMs = now - d;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        
+        return d.toLocaleDateString();
+    }
+    
+    truncateText(text, maxLength) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
 }
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    new UltraAdvancedAIToHumanConverter();
+    const converter = new UltraAdvancedAIToHumanConverter();
+    converter.loadHistoryFromStorage();
 });

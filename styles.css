@@ -106,6 +106,11 @@ body {
 .icon-item:hover {
     background: var(--accent-primary);
     transform: translateY(-2px);
+    cursor: pointer;
+}
+
+.icon-item:active {
+    transform: translateY(0);
 }
 
 .text-input {
