@@ -1,5 +1,8 @@
 class UltraAdvancedAIToHumanConverter {
     constructor() {
+        this.apiBaseUrl = '/api';
+        this.authToken = localStorage.getItem('authToken');
+        this.user = null;
         this.initializeElements();
         this.bindEvents();
         this.currentStep = 1;
@@ -69,6 +72,111 @@ class UltraAdvancedAIToHumanConverter {
         this.loadingText = document.getElementById('loadingText');
     }
 
+    async checkAuth() {
+        if (!this.authToken) {
+            this.showAuthPrompt();
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${this.authToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.user = data.data.user;
+                this.updateUserUI();
+            } else {
+                localStorage.removeItem('authToken');
+                this.authToken = null;
+                this.showAuthPrompt();
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            this.showAuthPrompt();
+        }
+    }
+
+    showAuthPrompt() {
+        // Show login prompt or redirect to auth page
+        const authBanner = document.createElement('div');
+        authBanner.className = 'auth-banner';
+        authBanner.innerHTML = `
+            <div class="auth-banner-content">
+                <p>Sign in to track your usage and access premium features</p>
+                <a href="/auth.html" class="btn btn-primary">Sign In</a>
+                <button class="btn btn-outline" onclick="this.parentElement.parentElement.remove()">Continue as Guest</button>
+            </div>
+        `;
+        document.body.insertBefore(authBanner, document.body.firstChild);
+    }
+
+    updateUserUI() {
+        if (!this.user) return;
+
+        // Add user info to header
+        const header = document.querySelector('.header');
+        const userInfo = document.createElement('div');
+        userInfo.className = 'user-info';
+        userInfo.innerHTML = `
+            <div class="user-details">
+                <span class="user-name">${this.user.name}</span>
+                <span class="user-plan">${this.user.subscription.type}</span>
+            </div>
+            <div class="user-actions">
+                <a href="/subscription.html" class="btn btn-outline">Manage Subscription</a>
+                <button class="btn btn-secondary" onclick="converter.logout()">Logout</button>
+            </div>
+        `;
+        header.appendChild(userInfo);
+
+        // Update usage display
+        this.updateUsageDisplay();
+    }
+
+    async updateUsageDisplay() {
+        if (!this.authToken) return;
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/subscription/status`, {
+                headers: {
+                    'Authorization': `Bearer ${this.authToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const usage = data.data.usage;
+
+                // Update character count display
+                const charCount = document.getElementById('charCount');
+                const parent = charCount.parentElement;
+                
+                if (usage.remainingWords === 'unlimited') {
+                    parent.innerHTML = `<span id="charCount">0</span>/Unlimited Characters (Premium)`;
+                } else {
+                    parent.innerHTML = `
+                        <span id="charCount">0</span>/125,000 Characters
+                        <div class="usage-info">
+                            Daily: ${usage.dailyWordsUsed} words used, ${usage.remainingWords} remaining
+                        </div>
+                    `;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to update usage display:', error);
+        }
+    }
+
+    logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        window.location.reload();
+    }
+
     bindEvents() {
         // Input events
         this.inputText.addEventListener('input', () => this.updateCharCount());
@@ -81,7 +189,7 @@ class UltraAdvancedAIToHumanConverter {
         this.uploadBtn.addEventListener('click', () => this.handleFileUpload());
         
         // Humanization events
-        this.humanizeBtn.addEventListener('click', () => this.showSettings());
+        this.humanizeBtn.addEventListener('click', () => this.startHumanization());
         this.generateBtn.addEventListener('click', () => this.generateHumanizedVersions());
         
         // Draft selection events
@@ -163,6 +271,23 @@ class UltraAdvancedAIToHumanConverter {
             return;
         }
         
+        // Check authentication and usage limits
+        if (this.authToken && this.user) {
+            const wordCount = text.split(/\s+/).length;
+            
+            if (this.user.subscription.type === 'free') {
+                const remaining = await this.checkUsageLimit(wordCount);
+                if (remaining === false) {
+                    this.showUpgradePrompt('You have reached your daily limit of 300 words. Upgrade to Premium for unlimited processing.');
+                    return;
+                }
+            }
+        } else if (text.split(/\s+/).length > 100) {
+            // Guest users limited to 100 words
+            this.showUpgradePrompt('Guest users are limited to 100 words. Sign in for 300 words daily or upgrade to Premium for unlimited processing.');
+            return;
+        }
+
         this.showLoading('Analyzing text with advanced AI detection...');
         
         try {
@@ -181,6 +306,47 @@ class UltraAdvancedAIToHumanConverter {
             this.showNotification('Analysis failed. Please try again.', 'error');
             console.error('Analysis error:', error);
         }
+    }
+
+    async checkUsageLimit(wordCount) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/subscription/status`, {
+                headers: {
+                    'Authorization': `Bearer ${this.authToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const usage = data.data.usage;
+                
+                if (usage.remainingWords === 'unlimited') {
+                    return true;
+                }
+                
+                return usage.remainingWords >= wordCount;
+            }
+        } catch (error) {
+            console.error('Usage check failed:', error);
+        }
+        return false;
+    }
+
+    showUpgradePrompt(message) {
+        const modal = document.createElement('div');
+        modal.className = 'upgrade-modal';
+        modal.innerHTML = `
+            <div class="upgrade-modal-content">
+                <h3>Upgrade Required</h3>
+                <p>${message}</p>
+                <div class="upgrade-actions">
+                    <a href="/subscription.html" class="btn btn-primary">Upgrade to Premium</a>
+                    ${!this.authToken ? '<a href="/auth.html" class="btn btn-outline">Sign In</a>' : ''}
+                    <button class="btn btn-secondary" onclick="this.closest('.upgrade-modal').remove()">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
     }
 
     async performAIAnalysis(text) {
@@ -401,6 +567,17 @@ class UltraAdvancedAIToHumanConverter {
 
     showSettings() {
         this.showSection('settings');
+    }
+
+    async startHumanization() {
+        if (!this.analysisResults) {
+            alert('Please analyze text first');
+            return;
+        }
+
+        // Show settings section
+        document.getElementById('settingsSection').style.display = 'block';
+        document.getElementById('settingsSection').scrollIntoView({ behavior: 'smooth' });
     }
 
     async generateHumanizedVersions() {
@@ -1384,4 +1561,5 @@ class UltraAdvancedAIToHumanConverter {
 document.addEventListener('DOMContentLoaded', () => {
     const converter = new UltraAdvancedAIToHumanConverter();
     converter.loadHistoryFromStorage();
+    converter.checkAuth();
 });
