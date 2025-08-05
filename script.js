@@ -449,9 +449,6 @@ class UltraAdvancedAIToHumanConverter {
         // Simulate advanced humanization
         let humanized = text;
         
-        // Advanced humanization for 0% AI detection
-        humanized = this.applyAdvancedHumanization(humanized, settings);
-        
         // Remove AI patterns
         if (settings.removePatterns) {
             humanized = humanized.replace(/\b(furthermore|moreover|additionally)\b/gi, (match) => {
