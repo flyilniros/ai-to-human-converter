@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription - AI Humanizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .subscription-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .subscription-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .subscription-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subscription-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .usage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .usage-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .usage-card h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .usage-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .usage-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .plan-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 2px solid var(--border-color);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .plan-card.current {
+            border-color: var(--accent-secondary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .plan-card.recommended {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .plan-badge.current {
+            background: var(--accent-secondary);
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+        
+        .plan-price .period {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .plan-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        .plan-features li::before {
+            content: '✓';
+            color: var(--accent-secondary);
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .plan-features li.unavailable {
+            color: var(--text-muted);
+        }
+        
+        .plan-features li.unavailable::before {
+            content: '✗';
+            color: var(--text-muted);
+        }
+        
+        .plan-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-button.primary {
+            background: linear-gradient(135deg, var(--accent-primary), #2563eb);
+            color: white;
+        }
+        
+        .plan-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .plan-button.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .plan-button.secondary:hover {
+            background: var(--bg-primary);
+        }
+        
+        .plan-button.current {
+            background: var(--accent-secondary);
+            color: white;
+        }
+        
+        .plan-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .billing-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        .billing-section h2 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        
+        .billing-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .billing-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .billing-item .label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .billing-item .value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .danger-zone {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .danger-zone h3 {
+            color: var(--accent-danger);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .danger-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-danger {
+            background: var(--accent-danger);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+        
+        .loading-spinner {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="subscription-container">
+        <div class="subscription-header">
+            <h1>Choose Your Plan</h1>
+            <p>Unlock unlimited text processing and advanced humanization features</p>
+        </div>
+        
+        <!-- Usage Statistics -->
+        <div class="usage-stats" id="usageStats">
+            <div class="usage-card">
+                <h3>Daily Usage</h3>
+                <div class="usage-number" id="dailyUsage">0</div>
+                <div class="usage-label">words used today</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="dailyProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="usage-card">
+                <h3>Remaining Today</h3>
+                <div class="usage-number" id="remainingUsage">300</div>
+                <div class="usage-label">words remaining</div>
+            </div>
+            
+            <div class="usage-card">
+                <h3>Total Processed</h3>
+                <div class="usage-number" id="totalWords">0</div>
+                <div class="usage-label">words all time</div>
+            </div>
+            
+            <div class="usage-card">
+                <h3>Texts Humanized</h3>
+                <div class="usage-number" id="totalTexts">0</div>
+                <div class="usage-label">texts processed</div>
+            </div>
+        </div>
+        
+        <!-- Subscription Plans -->
+        <div class="plans-container">
+            <!-- Free Plan -->
+            <div class="plan-card" id="freePlan">
+                <div class="plan-header">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>0
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-description">Perfect for trying out our service</div>
+                </div>
+                
+                <ul class="plan-features">
+                    <li>300 words per day</li>
+                    <li>Basic humanization</li>
+                    <li>AI detection analysis</li>
+                    <li>3 writing styles</li>
+                    <li class="unavailable">Priority support</li>
+                    <li class="unavailable">Advanced features</li>
+                    <li class="unavailable">Unlimited processing</li>
+                </ul>
+                
+                <button class="plan-button current" id="freeButton">Current Plan</button>
+            </div>
+            
+            <!-- Premium Plan -->
+            <div class="plan-card recommended" id="premiumPlan">
+                <div class="plan-badge">Recommended</div>
+                <div class="plan-header">
+                    <div class="plan-name">Premium</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>9<span style="font-size: 1.5rem;">.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-description">Unlimited processing with advanced features</div>
+                </div>
+                
+                <ul class="plan-features">
+                    <li>Unlimited words per day</li>
+                    <li>Advanced humanization</li>
+                    <li>Ultra-low AI detection</li>
+                    <li>All writing styles</li>
+                    <li>Priority support</li>
+                    <li>Advanced features</li>
+                    <li>Export to PDF</li>
+                    <li>Text history</li>
+                    <li>Custom settings</li>
+                </ul>
+                
+                <button class="plan-button primary" id="premiumButton">Upgrade to Premium</button>
+            </div>
+        </div>
+        
+        <!-- Billing Information -->
+        <div class="billing-section" id="billingSection" style="display: none;">
+            <h2>Billing Information</h2>
+            <div class="billing-info">
+                <div class="billing-item">
+                    <span class="label">Current Plan</span>
+                    <span class="value" id="currentPlan">Free</span>
+                </div>
+                <div class="billing-item">
+                    <span class="label">Next Billing Date</span>
+                    <span class="value" id="nextBilling">-</span>
+                </div>
+                <div class="billing-item">
+                    <span class="label">Status</span>
+                    <span class="value" id="subscriptionStatus">Active</span>
+                </div>
+                <div class="billing-item">
+                    <span class="label">Amount</span>
+                    <span class="value" id="billingAmount">$9.99/month</span>
+                </div>
+            </div>
+            
+            <div class="danger-zone">
+                <h3>Danger Zone</h3>
+                <p>Cancel your subscription. You'll continue to have access until the end of your billing period.</p>
+                <button class="btn-danger" id="cancelButton">Cancel Subscription</button>
+                <button class="btn btn-outline" id="reactivateButton" style="display: none; margin-left: 1rem;">Reactivate</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+    
+    <script src="subscription.js"></script>
+</body>
+</html>
